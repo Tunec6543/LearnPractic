@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+{% block title %}Регистрация — Приют для животных{% endblock %}
+{% block content %}
+<div class="box auth">
+    <h2>Регистрация аккаунта</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button class="btn btn-success">Зарегистрироваться</button>
+    </form>
+    <p class="muted">Уже есть аккаунт? <a href="{% url 'login' %}">Войти</a></p>
+</div>
+{% endblock %}

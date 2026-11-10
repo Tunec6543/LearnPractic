@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %}{{ pet.name }} — Карточка питомца{% endblock %}
+{% block content %}
+<a href="{% url 'index' %}" class="back-link">← Назад к каталогу</a>
+
+{% if error %}<div class="alert error">{{ error }}</div>{% endif %}
+{% if success %}<div class="alert success">{{ success }}</div>{% endif %}
+
+<div class="detail-box">
+    {% if pet.photo %}
+        <img src="{{ pet.photo.url }}" alt="{{ pet.name }}">
+    {% else %}
+        <div class="img-placeholder">Нет фотографии</div>
+    {% endif %}
+    <div class="detail-info">
+        <h2>{{ pet.name }}</h2>
+        <p><strong>Вид:</strong> {{ pet.species }} {% if pet.breed %}({{ pet.breed }}){% endif %}</p>
+        <p><strong>Пол:</strong> {{ pet.get_gender_display }}</p>
+        <p><strong>Возраст:</strong> {{ pet.age }}</p>
+        <p><strong>Статус:</strong> <span class="badge {{ pet.status }}">{{ pet.get_status_display }}</span></p>
+        <p><strong>Вольер:</strong> {{ pet.volier|default:"Не закреплен" }}</p>
+        <p><strong>Дата поступления:</strong> {{ pet.admission_date }}</p>
+        {% if pet.description %}<p><strong>История и характер:</strong><br>{{ pet.description }}</p>{% endif %}
+
+        {% if pet.vet_card %}
+            <div class="vet-block">
+                <h4>Ветеринарные данные</h4>
+                <p><strong>Последний осмотр:</strong> {{ pet.vet_card.last_checkup }}</p>
+                <p><strong>Прививки:</strong> {{ pet.vet_card.vaccinations }}</p>
+                {% if pet.vet_card.diagnosis %}<p><strong>Диагноз / особенности:</strong> {{ pet.vet_card.diagnosis }}</p>{% endif %}
+            </div>
+        {% endif %}
+
+        <div class="actions">
+            {% if blocked %}
+                <p class="error-text">⛔ Питомец находится на карантине или лечении. Заявки и прогулки временно заблокированы.</p>
+            {% elif user.is_authenticated %}
+                <h3>Подать заявку на усыновление</h3>
+                <form method="post">
+                    {% csrf_token %}
+                    {{ form.as_p }}
+                    <button name="adopt_submit" class="btn btn-success">Отправить анкету</button>
+                </form>
+                <h3>Записаться на прогулку</h3>
+                <form method="post">
+                    {% csrf_token %}
+                    {{ walking_form.as_p }}
+                    <button name="walk_submit" class="btn btn-success">Записаться на прогулку</button>
+                </form>
+            {% else %}
+                <p><a href="{% url 'login' %}">Войдите в систему</a>, чтобы подать заявку или записаться на прогулку.</p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block title %}Каталог питомцев — Приют для животных{% endblock %}
+{% block content %}
+<div class="filters">
+    <form method="get">
+        <input name="q" placeholder="Поиск по кличке или породе..." value="{{ request.GET.q }}">
+        <select name="species">
+            <option value="">Все виды</option>
+            <option value="собака" {% if request.GET.species == 'собака' %}selected{% endif %}>Собака</option>
+            <option value="кошка" {% if request.GET.species == 'кошка' %}selected{% endif %}>Кошка</option>
+        </select>
+        <select name="status">
+            <option value="">Все статусы</option>
+            {% for value, label in statuses %}
+                <option value="{{ value }}" {% if request.GET.status == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        <select name="gender">
+            <option value="">Любой пол</option>
+            {% for value, label in genders %}
+                <option value="{{ value }}" {% if request.GET.gender == value %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+        <button class="btn btn-success">Применить</button>
+        <a href="{% url 'index' %}" class="btn-reset">Сбросить</a>
+    </form>
+</div>
+
+<div class="pet-grid">
+    {% for pet in page_obj %}
+        <div class="pet-card">
+            <div>
+                {% if pet.photo %}
+                    <img src="{{ pet.photo.url }}" alt="{{ pet.name }}">
+                {% else %}
+                    <div class="img-placeholder">Нет фото</div>
+                {% endif %}
+                <h3>{{ pet.name }}</h3>
+                <p><strong>Вид:</strong> {{ pet.species }} {% if pet.breed %}({{ pet.breed }}){% endif %}</p>
+                <p><strong>Возраст:</strong> {{ pet.age }} мес./лет</p>
+                <span class="badge {{ pet.status }}">{{ pet.get_status_display }}</span>
+            </div>
+            <a href="{% url 'pet_detail' pet.id %}" class="btn">Подробнее</a>
+        </div>
+    {% empty %}
+        <p>Питомцы не найдены по вашему запросу.</p>
+    {% endfor %}
+</div>
+
+<div class="pagination">
+    {% if page_obj.has_previous %}
+        <a href="?page=1&{{ query }}">« Первая</a>
+        <a href="?page={{ page_obj.previous_page_number }}&{{ query }}">Назад</a>
+    {% endif %}
+    <span class="current">Страница {{ page_obj.number }} из {{ page_obj.paginator.num_pages }}</span>
+    {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}&{{ query }}">Вперед</a>
+        <a href="?page={{ page_obj.paginator.num_pages }}&{{ query }}">Последняя »</a>
+    {% endif %}
+</div>
+{% endblock %}

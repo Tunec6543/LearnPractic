@@ -1,0 +1,31 @@
+{% extends 'base.html' %}
+{% block title %}Личный кабинет — Приют для животных{% endblock %}
+{% block content %}
+<div class="box">
+    <h2>Личный кабинет</h2>
+    <p>Добро пожаловать, <strong>{{ user.username }}</strong>!</p>
+
+    <h3>Мои заявки на усыновление</h3>
+    {% for app in applications %}
+        <div class="item">
+            <strong>Питомец:</strong> <a href="{% url 'pet_detail' app.pet.id %}">{{ app.pet.name }}</a><br>
+            <strong>Статус заявки:</strong> <span class="badge {{ app.status }}">{{ app.get_status_display }}</span><br>
+            <strong>Дата подачи:</strong> {{ app.created_at|date:"d.m.Y H:i" }}<br>
+            <a href="{% url 'download_contract' app.id %}" class="btn small">📄 Скачать договор усыновления (.txt)</a>
+        </div>
+    {% empty %}
+        <p class="muted">Вы еще не подавали заявки на усыновление.</p>
+    {% endfor %}
+
+    <h3>Мои записи на прогулки</h3>
+    {% for booking in bookings %}
+        <div class="item walk">
+            <strong>Питомец:</strong> <a href="{% url 'pet_detail' booking.pet.id %}">{{ booking.pet.name }}</a><br>
+            <strong>Дата и время:</strong> {{ booking.date_time|date:"d.m.Y H:i" }}<br>
+            <strong>Статус:</strong> {% if booking.is_completed %}Прогулка завершена{% else %}Активна{% endif %}
+        </div>
+    {% empty %}
+        <p class="muted">У вас нет записей на прогулки.</p>
+    {% endfor %}
+</div>
+{% endblock %}
